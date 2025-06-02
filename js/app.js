@@ -18,21 +18,82 @@ async function initializeApp() {
 async function initializeWeatherWidget() {
     const weatherWidget = document.querySelector('.weather-widget');
     try {
-        // TODO: Implement weather API integration
-        // This is a placeholder structure that ensures we use Celsius
+        // Show loading state
         weatherWidget.innerHTML = `
             <div class="weather-info">
                 <p>Loading weather data...</p>
                 <p class="weather-note">(All temperatures in °C)</p>
             </div>
         `;
+
+        // Fetch 4-day forecast from data.gov.sg
+        const response = await fetch('https://api.data.gov.sg/v1/environment/4-day-weather-forecast');
+        const data = await response.json();
+        
+        if (!data.items || !data.items[0] || !data.items[0].forecasts) {
+            throw new Error('Invalid data format');
+        }
+
+        const forecasts = data.items[0].forecasts;
+        const today = new Date();
+
+        const forecastHtml = forecasts.map(forecast => {
+            const date = new Date(forecast.date);
+            const isToday = date.toDateString() === today.toDateString();
+            const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(date);
+            
+            return `
+                <div class="weather-day ${isToday ? 'weather-today' : ''}">
+                    <h3>${isToday ? 'Today' : dayName}</h3>
+                    <div class="weather-icon">
+                        <i class="fas ${getWeatherIcon(forecast.forecast)}"></i>
+                    </div>
+                    <div class="weather-details">
+                        <p class="forecast">${forecast.forecast}</p>
+                        <p class="temp">
+                            <span class="high">${forecast.temperature.high}°C</span> / 
+                            <span class="low">${forecast.temperature.low}°C</span>
+                        </p>
+                        <p class="humidity">Humidity: ${forecast.relative_humidity.high}% - ${forecast.relative_humidity.low}%</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        weatherWidget.innerHTML = `
+            <div class="weather-container">
+                <div class="weather-grid">
+                    ${forecastHtml}
+                </div>
+                <p class="weather-note">Data from NEA Singapore</p>
+            </div>
+        `;
     } catch (error) {
+        console.error('Weather widget error:', error);
         weatherWidget.innerHTML = `
             <div class="weather-error">
                 <p>Unable to load weather data</p>
+                <p class="weather-note">Please try again later</p>
             </div>
         `;
     }
+}
+
+// Helper function to map weather conditions to Font Awesome icons
+function getWeatherIcon(forecast) {
+    const condition = forecast.toLowerCase();
+    if (condition.includes('thundery') || condition.includes('thunder')) {
+        return 'fa-bolt';
+    } else if (condition.includes('rain') || condition.includes('showers')) {
+        return 'fa-cloud-rain';
+    } else if (condition.includes('cloudy')) {
+        return 'fa-cloud';
+    } else if (condition.includes('sunny') || condition.includes('fair')) {
+        return 'fa-sun';
+    } else {
+        return 'fa-cloud-sun'; // default icon
+    }
+}
 }
 
 // Map Implementation
