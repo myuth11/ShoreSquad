@@ -18,10 +18,11 @@ async function initializeApp() {
 async function initializeWeatherWidget() {
     const weatherWidget = document.querySelector('.weather-widget');
     try {
-        // Show loading state
+        // Show loading state with spinner
         weatherWidget.innerHTML = `
-            <div class="weather-info">
-                <p>Loading weather data...</p>
+            <div class="weather-info" style="text-align: center;">
+                <div class="loading-spinner"></div>
+                <p>Loading latest weather data...</p>
                 <p class="weather-note">(All temperatures in °C)</p>
             </div>
         `;
@@ -35,17 +36,26 @@ async function initializeWeatherWidget() {
         }
 
         const forecasts = data.items[0].forecasts;
-        const today = new Date();
+        const today = new Date();        // Add loading complete message to console
+        console.info('Weather data loaded successfully');
 
         const forecastHtml = forecasts.map(forecast => {
             const date = new Date(forecast.date);
             const isToday = date.toDateString() === today.toDateString();
             const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(date);
             
-            return `
-                <div class="weather-day ${isToday ? 'weather-today' : ''}">
+            // Format date for better accessibility
+            const formattedDate = new Intl.DateTimeFormat('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            }).format(date);
+            
+            return `                <div class="weather-day ${isToday ? 'weather-today' : ''}" 
+                    aria-label="Weather forecast for ${formattedDate}">
                     <h3>${isToday ? 'Today' : dayName}</h3>
-                    <div class="weather-icon">
+                    <div class="weather-icon" role="img" aria-label="${forecast.forecast}">
                         <i class="fas ${getWeatherIcon(forecast.forecast)}"></i>
                     </div>
                     <div class="weather-details">
@@ -67,16 +77,28 @@ async function initializeWeatherWidget() {
                 </div>
                 <p class="weather-note">Data from NEA Singapore</p>
             </div>
-        `;
-    } catch (error) {
+        `;    } catch (error) {
         console.error('Weather widget error:', error);
         weatherWidget.innerHTML = `
             <div class="weather-error">
+                <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                 <p>Unable to load weather data</p>
-                <p class="weather-note">Please try again later</p>
+                <p class="weather-note">
+                    ${error.message === 'Failed to fetch' 
+                        ? 'Network error. Please check your connection.' 
+                        : 'Please try again later'}
+                </p>
+                <button onclick="retryWeatherLoad()" class="cta-button" style="margin-top: 1rem;">
+                    <i class="fas fa-sync-alt"></i> Retry
+                </button>
             </div>
         `;
     }
+}
+
+// Function to retry loading weather data
+async function retryWeatherLoad() {
+    await initializeWeatherWidget();
 }
 
 // Helper function to map weather conditions to Font Awesome icons
