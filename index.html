@@ -9,8 +9,7 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
-    <header class="main-header">
+<body>    <header class="main-header">
         <nav class="nav-container">
             <div class="logo">
                 <h1>ShoreSquad</h1>
@@ -20,21 +19,72 @@
                 <a href="#weather">Weather</a>
                 <a href="#map">Map</a>
                 <a href="#community">Community</a>
+                <button id="create-event-btn" class="create-event-btn">
+                    <i class="fas fa-plus"></i> Create Event
+                </button>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
         </nav>
     </header>
 
-    <main>
-        <section class="hero">
+    <main>        <section class="hero">
             <div class="hero-content">
-                <h2>Join the Wave of Change</h2>
-                <p>Rally your crew, track weather, and make our beaches cleaner – one cleanup at a time!</p>
-                <button class="cta-button">Join Next Cleanup</button>
+                <div class="hero-animation">
+                    <div class="wave-icon">
+                        <i class="fas fa-water"></i>
+                    </div>
+                    <h2>Join the Wave of Change</h2>
+                    <div class="animated-text">
+                        <span class="highlight">Rally your crew</span>, 
+                        <span class="highlight">track weather</span>, and 
+                        <span class="highlight">make our beaches cleaner</span> 
+                        – one cleanup at a time!
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" data-count="2500">0</div>
+                            <div class="stat-label">Volunteers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" data-count="450">0</div>
+                            <div class="stat-label">Cleanups</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" data-count="12000">0</div>
+                            <div class="stat-label">kg Collected</div>
+                        </div>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="cta-button primary" onclick="scrollToEvents()">
+                            <i class="fas fa-hand-paper"></i> Join Next Cleanup
+                        </button>
+                        <button class="cta-button secondary" onclick="openEventModal()">
+                            <i class="fas fa-plus"></i> Create Event
+                        </button>
+                    </div>
+                </div>
             </div>
-        </section>
-
-        <section id="events" class="events-section">
-            <h2>Upcoming Cleanups</h2>
+            <div class="hero-background">
+                <div class="floating-element" style="--delay: 0s; --duration: 3s;">🌊</div>
+                <div class="floating-element" style="--delay: 1s; --duration: 4s;">🐚</div>
+                <div class="floating-element" style="--delay: 2s; --duration: 3.5s;">🐠</div>
+                <div class="floating-element" style="--delay: 0.5s; --duration: 4.5s;">⭐</div>
+            </div>
+        </section>        <section id="events" class="events-section">
+            <div class="section-header">
+                <h2>Upcoming Cleanups</h2>
+                <button class="add-event-btn" onclick="openEventModal()">
+                    <i class="fas fa-plus"></i> Add Event
+                </button>
+            </div>
+            <div class="events-filters">
+                <button class="filter-btn active" data-filter="all">All Events</button>
+                <button class="filter-btn" data-filter="beach">Beach Cleanup</button>
+                <button class="filter-btn" data-filter="river">River Cleanup</button>
+                <button class="filter-btn" data-filter="park">Park Cleanup</button>
+            </div>
             <div class="events-grid">
                 <!-- Events will be populated by JavaScript -->
             </div>
@@ -83,8 +133,93 @@
         </div>
         <div class="footer-bottom">
             <p>&copy; 2025 ShoreSquad. All rights reserved.</p>
+        </div>    </footer>
+
+    <!-- Event Creation Modal -->
+    <div id="event-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-calendar-plus"></i> Create New Event</h3>
+                <button class="close-modal" onclick="closeEventModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="event-form" onsubmit="submitEvent(event)">
+                <div class="form-group">
+                    <label for="event-title">Event Title</label>
+                    <input type="text" id="event-title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="event-type">Event Type</label>
+                    <select id="event-type" name="type" required>
+                        <option value="beach">Beach Cleanup</option>
+                        <option value="river">River Cleanup</option>
+                        <option value="park">Park Cleanup</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="event-date">Date</label>
+                        <input type="date" id="event-date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-time">Time</label>
+                        <input type="time" id="event-time" name="time" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="event-location">Location</label>
+                    <input type="text" id="event-location" name="location" placeholder="e.g., Sentosa Beach, Marina Bay" required>
+                </div>
+                <div class="form-group">
+                    <label for="event-description">Description</label>
+                    <textarea id="event-description" name="description" rows="3" placeholder="Tell volunteers what to expect..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="event-capacity">Max Participants</label>
+                    <input type="number" id="event-capacity" name="capacity" min="1" max="1000" value="50">
+                </div>
+                <div class="form-group">
+                    <label for="event-photo">Event Photo</label>
+                    <div class="photo-upload">
+                        <input type="file" id="event-photo" name="photo" accept="image/*" onchange="previewPhoto(event)">
+                        <div class="photo-preview" id="photo-preview">
+                            <i class="fas fa-camera"></i>
+                            <span>Click to upload photo</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeEventModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-plus"></i> Create Event
+                    </button>
+                </div>
+            </form>
         </div>
-    </footer>
+    </div>
+
+    <!-- Photo Gallery Modal -->
+    <div id="photo-modal" class="modal">
+        <div class="modal-content photo-modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-images"></i> Event Photos</h3>
+                <button class="close-modal" onclick="closePhotoModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="photo-gallery" id="photo-gallery">
+                <!-- Photos will be populated by JavaScript -->
+            </div>
+            <div class="photo-upload-section">
+                <input type="file" id="gallery-photo-upload" accept="image/*" multiple onchange="uploadPhotos(event)" style="display: none;">
+                <button class="btn-primary" onclick="document.getElementById('gallery-photo-upload').click()">
+                    <i class="fas fa-upload"></i> Upload Photos
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script src="js/app.js"></script>
 </body>
