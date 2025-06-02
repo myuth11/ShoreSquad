@@ -17,12 +17,22 @@ async function initializeApp() {
 // Weather Widget
 async function initializeWeatherWidget() {
     const weatherWidget = document.querySelector('.weather-widget');
-    // TODO: Implement weather API integration
-    weatherWidget.innerHTML = `
-        <div class="weather-loading">
-            <p>Loading weather data...</p>
-        </div>
-    `;
+    try {
+        // TODO: Implement weather API integration
+        // This is a placeholder structure that ensures we use Celsius
+        weatherWidget.innerHTML = `
+            <div class="weather-info">
+                <p>Loading weather data...</p>
+                <p class="weather-note">(All temperatures in °C)</p>
+            </div>
+        `;
+    } catch (error) {
+        weatherWidget.innerHTML = `
+            <div class="weather-error">
+                <p>Unable to load weather data</p>
+            </div>
+        `;
+    }
 }
 
 // Map Implementation
