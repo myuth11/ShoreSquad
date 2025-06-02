@@ -112,9 +112,24 @@ section {
 .weather-widget, #map-container {
     background: white;
     border-radius: 10px;
-    padding: 2rem;
+    padding: 1rem;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     min-height: 300px;
+}
+
+#map-container small {
+    display: block;
+    text-align: right;
+    margin-top: 0.5rem;
+}
+
+#map-container small a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+#map-container small a:hover {
+    text-decoration: underline;
 }
 
 /* Footer */
