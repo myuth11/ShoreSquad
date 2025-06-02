@@ -89,11 +89,9 @@ function getWeatherIcon(forecast) {
     } else if (condition.includes('cloudy')) {
         return 'fa-cloud';
     } else if (condition.includes('sunny') || condition.includes('fair')) {
-        return 'fa-sun';
-    } else {
+        return 'fa-sun';    } else {
         return 'fa-cloud-sun'; // default icon
     }
-}
 }
 
 // Map Implementation
